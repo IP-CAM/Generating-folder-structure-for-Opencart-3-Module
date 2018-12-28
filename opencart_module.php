@@ -6,7 +6,7 @@
 * License: GPL v.2.0
 * Author: Dmitry Lazarev <http://dmitry-lazarev.ru>
 * Version: 0.9
-* 
+*
 */
 $module_name=askModuleName();
 define('UPLOAD_DIR', 'upload/');
@@ -17,12 +17,12 @@ define('CATALOG_DIR', UPLOAD_DIR.'catalog/');
 define('ADMIN_CONTROLLER_DIR', ADMIN_DIR.'controller/extension/module/');
 define('ADMIN_LANGUAGE_DIR', ADMIN_DIR.'language/en-gb/extension/module/');
 define('ADMIN_MODEL_DIR', ADMIN_DIR.'model/extension/module/');
-define('ADMIN_VIEW_DIR', ADMIN_DIR.'view/theme/'.$module_name.'/template/extension/module/');
+define('ADMIN_VIEW_DIR', ADMIN_DIR.'view/template/extension/module/');
 
 define('CATALOG_CONTROLLER_DIR', CATALOG_DIR.'controller/extension/module/');
 define('CATALOG_LANGUAGE_DIR', CATALOG_DIR.'language/en-gb/extension/module/');
 define('CATALOG_MODEL_DIR', CATALOG_DIR.'model/extension/module/');
-define('CATALOG_VIEW_DIR', CATALOG_DIR.'view/theme/'.$module_name.'/template/extension/module/');
+define('CATALOG_VIEW_DIR', CATALOG_DIR.'view/theme/default/template/extension/module/');
 $end_catalogs=array
 (
     ADMIN_CONTROLLER_DIR,
@@ -90,18 +90,23 @@ function makeFiles($module_name,$php_catalogs)
 {
     $output='';
     foreach ($php_catalogs as $catalog) {
-        $f=fopen($catalog.$module_name.'.php', 'at');
+        if ($catalog == ADMIN_VIEW_DIR || $catalog == CATALOG_VIEW_DIR){
+            $f=fopen($catalog.$module_name.'.twig', 'at');
+        } else {
+            $f=fopen($catalog.$module_name.'.php', 'at');
+        }
+
         switch ($catalog)
         {
-        case ADMIN_LANGUAGE_DIR:
-		case CATALOG_LANGUAGE_DIR: $output=getLanguageFile($module_name); break;
-		case ADMIN_CONTROLLER_DIR: $output=getAdminControllerFile($module_name); break;
-		case ADMIN_MODEL_DIR: $output=getAdminModelFile($module_name); break;
-		case ADMIN_VIEW_DIR: $output=getAdminViewFile(); break;
-		case CATALOG_CONTROLLER_DIR: $output=getCatalogControllerFile($module_name); break;
-		case CATALOG_MODEL_DIR: $output=getCatalogModelFile($module_name); break;
-		case CATALOG_VIEW_DIR: $output=getCatalogViewFile(); break;
-		default: $output="";
+          case ADMIN_LANGUAGE_DIR:
+      		case CATALOG_LANGUAGE_DIR: $output=getLanguageFile($module_name); break;
+      		case ADMIN_CONTROLLER_DIR: $output=getAdminControllerFile($module_name); break;
+      		case ADMIN_MODEL_DIR: $output=getAdminModelFile($module_name); break;
+      		case ADMIN_VIEW_DIR: $output=getAdminViewFile(); break;
+      		case CATALOG_CONTROLLER_DIR: $output=getCatalogControllerFile($module_name); break;
+      		case CATALOG_MODEL_DIR: $output=getCatalogModelFile($module_name); break;
+      		case CATALOG_VIEW_DIR: $output=getCatalogViewFile(); break;
+      		default: $output="";
         }
         fwrite($f, $output);
         fclose($f);
@@ -267,18 +272,6 @@ class ControllerExtensionModule{$temp} extends Controller
 				\$data['error_name'] = '';
 			}
 
-			if (isset(\$this->error['width'])) {
-				\$data['error_width'] = \$this->error['width'];
-			} else {
-				\$data['error_width'] = '';
-			}
-
-			if (isset(\$this->error['height'])) {
-				\$data['error_height'] = \$this->error['height'];
-			} else {
-				\$data['error_height'] = '';
-			}
-
 			\$data['breadcrumbs'] = array();
 
 			\$data['breadcrumbs'][] = array(
@@ -347,14 +340,6 @@ class ControllerExtensionModule{$temp} extends Controller
 				\$this->error['name'] = \$this->language->get('error_name');
 			}
 
-			if (!\$this->request->post['width']) {
-				\$this->error['width'] = \$this->language->get('error_width');
-			}
-
-			if (!\$this->request->post['height']) {
-				\$this->error['height'] = \$this->language->get('error_height');
-			}
-
 			return !\$this->error;
 		}
 }
@@ -370,6 +355,7 @@ function getLanguageFile($name)
 {
 	$temp=ucfirst($name);
     $template=<<<TEMPLATE
+<?php
 \$_['heading_title'] = '{$temp}';
 \$_[''] = '';
 \$_[''] = '';
