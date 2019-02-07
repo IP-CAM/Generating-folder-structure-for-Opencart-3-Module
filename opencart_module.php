@@ -6,9 +6,9 @@
 *
 * License: GPL v.2.0
 * Author: Dmitry Lazarev <http://dmitry-lazarev.ru>
-* Version: 0.9
+* Version: 0.9.5
 *
-* 
+*
 */
 $module_name=askModuleName();
 define('UPLOAD_DIR', 'upload/');
@@ -60,7 +60,7 @@ function askModuleName()
       return substr($fileName['f'],1);
     } else {
 
-      echo "Invalid filename.\nCommand syntax:\n\tphp <PATH TO THE SCRIPT>/opencart_module.php -f:<MODULE NAME>\n";
+      echo "Invalid module name.\nCommand syntax:\n\tphp <PATH TO THE SCRIPT>/opencart_module.php -f:<MODULE NAME>\n";
       exit(1);
     }
 
