@@ -3,10 +3,12 @@
 * Opencart 3.x module generator.
 *
 *
+*
 * License: GPL v.2.0
 * Author: Dmitry Lazarev <http://dmitry-lazarev.ru>
 * Version: 0.9
 *
+* 
 */
 $module_name=askModuleName();
 define('UPLOAD_DIR', 'upload/');
@@ -54,7 +56,14 @@ function askModuleName()
 {
 
     $fileName=getopt("f:");
-    return $fileName['f'];
+    if ($fileName){
+      return substr($fileName['f'],1);
+    } else {
+
+      echo "Invalid filename.\nCommand syntax:\n\tphp <PATH TO THE SCRIPT>/opencart_module.php -f:<MODULE NAME>\n";
+      exit(1);
+    }
+
 }
 /**
  * Function isWritable
@@ -90,6 +99,8 @@ function makeFiles($module_name,$php_catalogs)
 {
     $output='';
     foreach ($php_catalogs as $catalog) {
+      // echo "Catalog $catalog";
+      // echo "Module name $module_name";
         if ($catalog == ADMIN_VIEW_DIR || $catalog == CATALOG_VIEW_DIR){
             $f=fopen($catalog.$module_name.'.twig', 'at');
         } else {
@@ -98,8 +109,8 @@ function makeFiles($module_name,$php_catalogs)
 
         switch ($catalog)
         {
-          case ADMIN_LANGUAGE_DIR:
-      		case CATALOG_LANGUAGE_DIR: $output=getLanguageFile($module_name); break;
+          case ADMIN_LANGUAGE_DIR: $output=getAdminLanguageFile($module_name);break;
+      		case CATALOG_LANGUAGE_DIR: $output=getCatalogLanguageFile($module_name); break;
       		case ADMIN_CONTROLLER_DIR: $output=getAdminControllerFile($module_name); break;
       		case ADMIN_MODEL_DIR: $output=getAdminModelFile($module_name); break;
       		case ADMIN_VIEW_DIR: $output=getAdminViewFile(); break;
@@ -116,7 +127,7 @@ function makeFiles($module_name,$php_catalogs)
 function getCatalogViewFile()
 {
     $template=<<<TEMPLATE
-<?php
+{# View file #}
 TEMPLATE;
     return $template;
 }
@@ -346,12 +357,42 @@ class ControllerExtensionModule{$temp} extends Controller
 TEMPLATE;
     return $template;
 }
+
 /**
- * Function get_language_file
+ * Function
  *
  * @return string
  */
-function getLanguageFile($name)
+function getAdminLanguageFile($name)
+{
+	$temp=ucfirst($name);
+    $template=<<<TEMPLATE
+<?php
+\$_['heading_title'] = '{$temp}';
+
+\$_['button_cancel']     = 'Cancel';
+\$_['button_save']       = 'Save';
+
+\$_['entry_name']        = 'Name';
+\$_['entry_status']      = 'Status';
+
+\$_['error_name']        = 'Name must be between 3 and 64 characters!';
+\$_['error_permission']  = 'Warning: You do not have permission to modify the module!';
+
+\$_['text_disabled']     = 'Disabled';
+\$_['text_edit']         = 'Edit';
+\$_['text_enabled']      = 'Enabled';
+\$_['text_extension']    = 'Extensions';
+\$_['text_success']      = 'Success: You have modified the settings!';
+TEMPLATE;
+    return $template;
+}
+/**
+ * Function
+ *
+ * @return string
+ */
+function getCatalogLanguageFile($name)
 {
 	$temp=ucfirst($name);
     $template=<<<TEMPLATE
